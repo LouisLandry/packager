@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packager minify="true" alias="packager.phar" destination="../bin/packager.phar">
+	<code stub="main.stub.php">
+		<folder recursive="true" localPath="packager">packager</folder>
+
+		<platform version="12.1" legacy="false" localPath="lib">
+			<packages>
+				<package name="application" />
+				<package name="registry" />
+				<package name="input" />
+				<package name="filter" />
+				<package name="event" />
+				<package name="log" />
+				<package name="object" />
+			</packages>
+		</platform>
+	</code>	
+
+	<metadata>
+		<element name="version" value="1.0" />
+		<element name="authors">
+			<element name="Open Source Matters, Inc.">
+				<element name="email" value="admin@joomla.org" />
+			</element>
+		</element>
+	</metadata>
+</packager>
