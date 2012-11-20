@@ -20,14 +20,20 @@ class PackagerPhar
 	 * @var    Phar  The Phar object to be created/updated.
 	 * @since  1.0
 	 */
-	private $_phar;
+    private $_phar;
 
 	/**
 	 * @var    boolean  True to have whitespace stripped from PHP files while being imported into the Phar.
 	 * @since  1.0
 	 */
-	private $_stripWhitespace;
+    private $_stripWhitespace;
 
+
+    /**
+     * @var    namespace  The current Namespace to be prepended
+     * 	 * @since  1.1
+     */
+    private $_namespace = '';
 	/**
 	 * Object Constructor.
 	 *
@@ -218,13 +224,38 @@ class PackagerPhar
 	 */
 	protected function addFileContents($fullPath, $pharPath = null)
 	{
+
+        if ($this->_namespace == '') {
+            $nsString = '';
+        } else {
+            $nsString = '<?php namespace '.$this->_namespace.'; ?>';
+        }
+
+
 		// Build the Phar local path to the file.
 		$pharPath = trim(trim($pharPath, ' /') . '/' . basename($fullPath), ' /');
 
 		// Add the file contents to the Phar.
 		$this->_phar->addFromString(
 			$pharPath,
-			($this->_stripWhitespace ? php_strip_whitespace($fullPath) : file_get_contents($fullPath))
+            $nsString.($this->_stripWhitespace ? php_strip_whitespace($fullPath) : file_get_contents($fullPath))
 		);
 	}
+
+    /**
+     * Set a given namespace to be prepended to files imported.
+     *
+     * @param   string  $ns  The absolute namespace to set for all files included from this point on.
+     *
+     * @return  PackagerPhar  This Phar object for chaining.
+     *
+     * @since   1.0
+     */
+    public function setNamespace($ns)
+    {
+        $this->_namespace = $ns;;
+
+        return $this;
+    }
+
 }

@@ -20,13 +20,13 @@ class PackagerApplicationCli extends JApplicationCli
 	 * @var    PackagerPhar
 	 * @since  1.0
 	 */
-	private $_packager;
+    protected $_packager;
 
 	/**
 	 * @var    boolean  True if the application should work quietly.
 	 * @since  1.0
 	 */
-	private $_quiet;
+    protected $_quiet;
 
 	/**
 	 * Show the usage screen.
@@ -114,6 +114,9 @@ class PackagerApplicationCli extends JApplicationCli
 		// Process the items in the code section of the manifest.
 		foreach ($manifest->code[0]->children() as $item)
 		{
+
+            // set the namespace
+            $this->_packager->setNamespace((string) $item['namespace'] );
 			switch ($item->getName())
 			{
 				// Import a single file.
@@ -213,7 +216,7 @@ class PackagerApplicationCli extends JApplicationCli
 	 * @since   1.0
 	 * @throws  InvalidArgumentException
 	 */
-	private function _fetchPackageManifest($manifestPath)
+    protected function _fetchPackageManifest($manifestPath)
 	{
 		// Set relative paths to be relative to the current working directory.
 		if (strpos($manifestPath, '/') !== 0)
