@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <packager minify="false" alias="joomla.ns.phar" destination="../build/joomla.ns.phar">
-	<code stub="import.stub.php">
-		<file namespace="joomla\joomla\p12_4">loader.php</file>
+    <stubs>
+        <file namespace="joomla\joomla\p12_4">ns.utility.functions.stub.php</file>
+        <file namespace="joomla\joomla\p12_4">ns.utility.class.stub.php</file>
+        <file namespace="joomla\joomla\p12_4">ns.main.stub.php</file>
+    </stubs>
+	<code>
 		<file namespace="joomla\joomla\p12_4">../libraries/platform.php</file>
 		<folder recursive="true" localPath="compat" namespace="joomla\joomla\p12_4">../libraries/compat</folder>
 		<folder recursive="true" localPath="joomla" namespace="joomla\joomla\p12_4">../libraries/joomla</folder>

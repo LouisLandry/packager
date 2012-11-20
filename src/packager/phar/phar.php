@@ -195,6 +195,23 @@ class PackagerPhar
 		return $this;
 	}
 
+
+    /**
+     * Set code as the stub for the Phar archive.
+     *
+     * @param   string  $code  The PHP code for the stub
+     *
+     * @return  PackagerPhar  This Phar object for chaining.
+     *
+     * @since   1.0
+     */
+    public function setStubCode($code)
+    {
+        $this->_phar->setStub($code);
+
+        return $this;
+    }
+
 	/**
 	 * Write the Phar to disk.
 	 *
@@ -225,23 +242,64 @@ class PackagerPhar
 	protected function addFileContents($fullPath, $pharPath = null)
 	{
 
-        if ($this->_namespace == '') {
-            $nsString = '';
-        } else {
-            $nsString = '<?php namespace '.$this->_namespace.'; ?>';
-        }
+        // Get the code
+        $code = $this->getFileContents($fullPath);
 
+        // Build the Phar local path to the file.
+        $pharPath = trim(trim($pharPath, ' /') . '/' . basename($fullPath), ' /');
 
-		// Build the Phar local path to the file.
-		$pharPath = trim(trim($pharPath, ' /') . '/' . basename($fullPath), ' /');
-
-		// Add the file contents to the Phar.
-		$this->_phar->addFromString(
-			$pharPath,
-            $nsString.($this->_stripWhitespace ? php_strip_whitespace($fullPath) : file_get_contents($fullPath))
-		);
+        // Add the file contents to the Phar.
+        $this->_phar->addFromString(
+            $pharPath,$code
+        );
 	}
 
+    /**
+    /* get contents of the file at a given absolute path
+     * This method will honor the `stripWhitespace` setting for
+     * the file contents.  If true it will strip all comments and whitespace
+     * from the file contents before importing it.
+     *
+     * @param   string  $fullPath  The absolute filesystem path to the file to import.
+     *
+     * @return  string  The php code processed for the namespace and whitespace
+     *
+     * @see     _stripWhitespace
+     * @since   1.0
+     */
+    public function getFileContents($fullPath)
+    {
+
+
+        // Get the code
+        $code = $this->_stripWhitespace ? php_strip_whitespace($fullPath) : file_get_contents($fullPath);
+
+        // return the code processed for the default namespace
+        return  $this->processNamespace($code);
+    }
+
+
+    /**
+     * get the contents of a stub file
+     *
+     * @param   string  $path      The absolute filesystem path to the file to import.
+     *
+     * @return  string  The stub file contents code
+     *
+     * @since   1.0
+     * @throws  InvalidArgumentException
+     */
+    public function getStubFileContents($path)
+    {
+        // Validate the base path.
+        if (!is_file($path))
+        {
+            throw new InvalidArgumentException(sprintf('The path %s does not exist.', $path));
+        }
+
+        return $this->getFileContents(realpath($path));
+
+    }
     /**
      * Set a given namespace to be prepended to files imported.
      *
@@ -256,6 +314,108 @@ class PackagerPhar
         $this->_namespace = $ns;;
 
         return $this;
+    }
+
+
+    /**
+     * Process code to add/remove default namespace
+     * Namespace is always 3 lines:
+     *   firstline starts with <?php and ends with a [CR]
+     *   secondline starts with namespace and ends with [CR]
+     *   thirdline ends with ?>[CR]
+     *
+     * @param   string  $code The code to be modified
+     *
+     * @return  string  The modified code.
+     *
+     * @since   1.0
+     */
+    public function processNamespace($code = '')
+    {
+        // remove existing default namespace
+        $code = $this->stripNamespace($code);
+
+        // add new default namespace
+        $code = $this->prependNamespace($code);
+
+        return $code;
+    }
+
+    /**
+     * Prepends the configured namespace format to a codestring.
+     * Namespace is always 3 lines:
+     *   firstline starts with <?php and ends with a [CR]
+     *   secondline starts with namespace and ends with [CR]
+     *   thirdline ends with ?>[CR]
+     *
+     * @param   string  $code The code to be modified
+     *
+     * @return  string  The modified code.
+     *
+     * @since   1.0
+     */
+    public function prependNamespace($code = '')
+    {
+
+        // only set a default namespace if one is defined
+        if ($this->_namespace != '') {
+            $code = "<?php\nnamespace ".$this->_namespace.";\n?>\n".$code;
+        }
+
+        return $code;
+    }
+
+    /**
+     * Strips the default namespace, if any, from the codestring
+     * Namespace is always 3 lines:
+     *   firstline starts with <?php and ends with a [CR]
+     *   secondline starts with namespace and ends with [CR]
+     *   thirdline ends with ?>[CR]
+     *
+     * This allows for comments/clarity to be added to any of the lines
+     * as well as additional code specific to that namespace
+     *
+     * @param   string  $code The code to be modified
+     *
+     * @return  string  The modified code.
+     *
+     * @since   1.0
+     */
+    public function stripNamespace($code = '')
+    {
+
+
+        // convert the code string to an array
+       $lines = explode("\n", $code);
+
+        if (count($lines < 3)) {
+            // there must be at least 3 lines termineate with CR
+            // for there to be a header
+            return $code;
+        }
+
+        // line 1 must start with opening the php
+        $needle = '<?php';
+        if (strpos(strtolower($lines[0]),$needle) !== 0) {
+            return $code;
+        }
+
+        // line 2 must start with the namespace keyword
+        $needle = 'namespace';
+        if (strpos(strtolower($lines[1]),$needle) !== 0) {
+            return $code;
+        }
+
+        // line 3 must end with closing the php
+        $needle = '?>';
+        $mustBe = strlen($lines[2]) - strlen($needle);
+        if (strrpos($lines[2],$needle) !== $mustBe) {
+            return $code;
+        }
+
+        // all conditions are set, strip the first 3 lines
+        $lines = array_slice($lines, 3);
+        return implode('\n', $lines);
     }
 
 }

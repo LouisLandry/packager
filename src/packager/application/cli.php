@@ -191,11 +191,31 @@ class PackagerApplicationCli extends JApplicationCli
 		}
 		else
 		{
-			// Set the package stub files.
-			$this->_packager->setStubs(
-				(string) $manifest->code[0]['cli'],
-				(string) $manifest->code[0]['web']
-			);
+            // If there isn't a stub section in the manifest use the default stub.
+            if (!isset($manifest->stubs[0]))
+            {
+                $this->_quiet or $this->out('. using the default package stub code.');
+			    // Set the package stub files using defaults.
+			    $this->_packager->setStubs(
+				    (string) $manifest->code[0]['cli'],
+				    (string) $manifest->code[0]['web']
+			    );
+            }
+            else
+            {
+                $this->_quiet or $this->out('.. importing multiple stub files.');
+                $stubCode = '';
+                 // Process the items in the stubs section of the manifest.
+                foreach ($manifest->stubs[0]->children() as $item)
+                {
+                    $this->_quiet or $this->out(sprintf('.. importing %s.', (string) $item));
+                    // set the namespace
+                    $this->_packager->setNamespace((string) $item['namespace'] );
+                    $stubCode .= $this->_packager->getStubFileContents(realpath(dirname($manifestPath)) . '/' . (string) $item);
+                }
+
+                $this->_packager->setStubCode($stubCode);
+            }
 		}
 
 		$this->_quiet or $this->out('.. set the package stub file(s).');
