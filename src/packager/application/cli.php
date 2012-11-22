@@ -92,13 +92,6 @@ class PackagerApplicationCli extends JApplicationCli
 			return;
 		}
 
-		// Ensure that we have at maximum one platform entry in the manifest.
-		if (isset($manifest->code[0]->platform[1]))
-		{
-			$this->_quiet or $this->out('. only one platform entry can be in a manifest.');
-			return;
-		}
-
 		$this->_quiet or $this->out('. creating the package object.');
 
 		// Create the packager object.

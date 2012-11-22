@@ -36,29 +36,37 @@ class PackagerPharImporterJoomlaPlatform extends PackagerPharImporter
 		// Check to see if legacy support should be imported.
 		$legacy = (((string) $el['legacy'] == 'true') ? true : false);
 
-		// Validate that the platform import file exists.
-		if (!is_file($basePath . '/import.php'))
-		{
-			throw new InvalidArgumentException('The platform import file could not be found.');
-		}
+        // Check to see if external libraries should be imported.
+        $external = (((string) $el['external'] == 'false') ? false : true);
 
-		// Validate that the platform loader file exists.
-		if (!is_file($basePath . '/loader.php'))
-		{
-			throw new InvalidArgumentException('The platform loader file could not be found.');
-		}
+        // Check to see if external libraries should be imported.
+        $hard = (((string) $el['hard'] == 'false') ? false : true);
 
-		// Add the hard requirements.
-		$this->importFile($basePath . '/loader.php');
-		$this->importFile($basePath . '/platform.php');
-		$this->importFile($basePath . '/import.php');
 
-		// If legacy is enabled import the legacy file.
-		if ($legacy)
-		{
-			$this->importFile($basePath . '/import.legacy.php');
-		}
+        if ($hard) {
+		    // Validate that the platform import file exists.
+		    if (!is_file($basePath . '/import.php'))
+		    {
+			    throw new InvalidArgumentException('The platform import file could not be found.');
+		    }
 
+		    // Validate that the platform loader file exists.
+		    if (!is_file($basePath . '/loader.php'))
+		    {
+			    throw new InvalidArgumentException('The platform loader file could not be found.');
+		    }
+
+		    // Add the hard requirements.
+		    $this->importFile($basePath . '/loader.php');
+		    $this->importFile($basePath . '/platform.php');
+		    $this->importFile($basePath . '/import.php');
+
+		    // If legacy is enabled import the legacy file.
+		    if ($legacy)
+		    {
+			    $this->importFile($basePath . '/import.legacy.php');
+		    }
+        }
 		// Get the appropriate Joomla Platform packages to import.
 		$packages = $this->_fetchPackagesToImport($el, $basePath);
 
@@ -99,10 +107,12 @@ class PackagerPharImporterJoomlaPlatform extends PackagerPharImporter
 			}
 		}
 
+        if ($external) {
 		// Add the external library dependencies.
 		$this->importDirectoryRecursive($basePath . '/phpmailer', '/phpmailer');
 		$this->importDirectoryRecursive($basePath . '/phputf8', '/phputf8');
 		$this->importDirectoryRecursive($basePath . '/simplepie', '/simplepie');
+        }
 	}
 
 	/**
@@ -119,7 +129,7 @@ class PackagerPharImporterJoomlaPlatform extends PackagerPharImporter
 	private function _fetchGitRepository($url, $ref = 'master')
 	{
 		// Create a Git repository object within the system tmp folder for the url.
-		$root = sys_get_temp_dir() . md5($url);
+		$root = sys_get_temp_dir() .'/'. md5($url);
 
 		// If the folder doesn't exist attempt to create it.
 		if (!is_dir($root))

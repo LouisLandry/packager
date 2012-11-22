@@ -77,7 +77,7 @@ class PackagerPharImporterGitRepository extends PackagerPharImporter
 	private function _fetchGitRepository($url, $ref = 'master')
 	{
 		// Create a Git repository object within the system tmp folder for the url.
-		$root = sys_get_temp_dir() . md5($url);
+		$root = sys_get_temp_dir() . '/'. md5($url);
 
 		// If the folder doesn't exist attempt to create it.
 		if (!is_dir($root))
