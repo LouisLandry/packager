@@ -37,7 +37,6 @@ class PackagerPharImporterGitRepository extends PackagerPharImporter
 			{
 				// Import a single file.
 				case 'file':
-					$this->_quiet or $this->out(sprintf('... importing %s.', (string) $item));
 					$this->importFile($repositoryPath . '/' . (string) $item, (string) $item['localPath']);
 					break;
 
@@ -46,12 +45,10 @@ class PackagerPharImporterGitRepository extends PackagerPharImporter
 					// Check to see if we want to import the folder recursively.
 					if ((string) $item['recursive'] == 'true')
 					{
-						$this->_quiet or $this->out(sprintf('... importing %s recursively.', (string) $item));
 						$this->importDirectoryRecursive($repositoryPath . '/' . (string) $item, (string) $item['localPath']);
 					}
 					else
 					{
-						$this->_quiet or $this->out(sprintf('... importing %s.', (string) $item));
 						$this->importDirectoryFiles($repositoryPath . '/' . (string) $item, (string) $item['localPath']);
 					}
 					break;
@@ -91,10 +88,12 @@ class PackagerPharImporterGitRepository extends PackagerPharImporter
 		// Only clone the repository if it doesn't exist.
 		if (!$repo->exists())
 		{
-			$repo->create();
+
+			$repo->create($url);
 		}
 
 		// Get a clean checkout of the branch/tag required.
+
 		$repo->fetch()
 			->branchCheckout($ref)
 			->clean();
