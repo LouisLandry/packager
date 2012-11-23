@@ -78,6 +78,11 @@ The `<file>` element can live as a child of the `<code>` tag or the `<git>` tag.
 		<td>False</td>
 		<td>If the <strong>localPath</strong> attribute is set then the given file will be imported into the Phar underneath the path given as the attribute value.  For example: <code>&lt;file&gt;path/to/foo.php&lt;/file&gt;</code> would mean that <code>foo.php</code> is simply imported into the root path within the Phar.  If the <strong>localPath</strong> attribute is set that would change: <code>&lt;file localPath="bar/baz"&gt;path/to/foo.php&lt;/file&gt;</code> would mean that <code>foo.php</code> is  imported into the Phar underneath the <strong>localPath</strong> like <code>bar/baz/foo.php</code>.  <em>Note: if <code>&lt;file&gt;</code> is within a <code>&lt;git&gt;</code> tag it is possible to have the <strong>localPath</strong> be appended to a <strong>localPath</strong> set within the <code>&lt;git&gt;</code> tag itself.</em></td>
 	</tr>
+		<tr>
+        	<td>namespace</td>
+        	<td>null</td>
+        	<td>If the <strong>namespace</strong> attribute is set then for each php file included will have this namespace declaration added to the beginning of the code.</td>
+        </tr>
 </table>
 
 ### The &lt;folder&gt; Element
@@ -100,6 +105,11 @@ The `<folder>` element can live as a child of the `<code>` tag or the `<git>` ta
 		<td>False</td>
 		<td>If you want to have all children of the folder recursively imported into the phar set this attribute to "true".  Otherwise only the files in the exact folder will be imported.</td>
 	</tr>
+		<tr>
+        	<td>namespace</td>
+        	<td>null</td>
+        	<td>If the <strong>namespace</strong> attribute is set then for each php file included will have this namespace declaration added to the beginning of the code.</td>
+        </tr>
 </table>
 
 ### The &lt;git&gt; Element
@@ -127,6 +137,11 @@ The `<git>` element can live as a child of the `<code>` tag only.  It allows you
 		<td>False</td>
 		<td>If the <strong>localPath</strong> attribute is set then any files or folders will be imported into the phar underneath the path given as the attribute value.</td>
 	</tr>
+		<tr>
+        	<td>namespace</td>
+        	<td>null</td>
+        	<td>If the <strong>namespace</strong> attribute is set then for each php file included will have this namespace declaration added to the beginning of the code.</td>
+        </tr>
 </table>
 
 #### Example: Import a file from a git repository into Phar root.
@@ -173,10 +188,25 @@ The `<platform>` element is used for packaging up the Joomla Platform into the p
 		<td>If you want to import the legacy libraries for the Joomla Platform into the phar set this attribute to "true".</td>
 	</tr>
 	<tr>
+	    <td>hard</td>
+        <td>True</td>
+    	<td>If you want to exclude the base Joomla Platform libraries needed in order to use the platform set this flag to "false."</td>
+    </tr>
+    <tr>
+    	<td>external</td>
+        <td>False</td>
+        <td>If you want to exclude the external libraries for the Joomla Platform into the phar set this attribute to "false".</td>
+    </tr>
+	<tr>
 		<td>localPath</td>
 		<td>False</td>
 		<td>If the <strong>localPath</strong> attribute is set then the platform will be imported into the phar underneath the path given as the attribute value.</td>
 	</tr>
+	<tr>
+    	<td>namespace</td>
+    	<td>null</td>
+    	<td>If the <strong>namespace</strong> attribute is set then for each php file included will have this namespace declaration added to the beginning of the code.</td>
+    </tr>
 </table>
 
 #### The &lt;packages&gt; Element

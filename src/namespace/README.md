@@ -1,0 +1,1 @@
+Moved namespace recipe to external repository Joomla Packager Recipes to make it easier to seperate changes for Packager with changes to this recipe.  https://github.com/garyamort/joomla-packager-recipes

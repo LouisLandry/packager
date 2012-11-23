@@ -20,13 +20,13 @@ class PackagerApplicationCli extends JApplicationCli
 	 * @var    PackagerPhar
 	 * @since  1.0
 	 */
-	private $_packager;
+    protected $_packager;
 
 	/**
 	 * @var    boolean  True if the application should work quietly.
 	 * @since  1.0
 	 */
-	private $_quiet;
+    protected $_quiet;
 
 	/**
 	 * Show the usage screen.
@@ -92,13 +92,6 @@ class PackagerApplicationCli extends JApplicationCli
 			return;
 		}
 
-		// Ensure that we have at maximum one platform entry in the manifest.
-		if (isset($manifest->code[0]->platform[1]))
-		{
-			$this->_quiet or $this->out('. only one platform entry can be in a manifest.');
-			return;
-		}
-
 		$this->_quiet or $this->out('. creating the package object.');
 
 		// Create the packager object.
@@ -114,6 +107,9 @@ class PackagerApplicationCli extends JApplicationCli
 		// Process the items in the code section of the manifest.
 		foreach ($manifest->code[0]->children() as $item)
 		{
+
+            // set the namespace
+            $this->_packager->setNamespace((string) $item['namespace'] );
 			switch ($item->getName())
 			{
 				// Import a single file.
@@ -188,11 +184,31 @@ class PackagerApplicationCli extends JApplicationCli
 		}
 		else
 		{
-			// Set the package stub files.
-			$this->_packager->setStubs(
-				(string) $manifest->code[0]['cli'],
-				(string) $manifest->code[0]['web']
-			);
+            // If there isn't a stub section in the manifest use the default stub.
+            if (!isset($manifest->stubs[0]))
+            {
+                $this->_quiet or $this->out('. using the default package stub code.');
+			    // Set the package stub files using defaults.
+			    $this->_packager->setStubs(
+				    (string) $manifest->code[0]['cli'],
+				    (string) $manifest->code[0]['web']
+			    );
+            }
+            else
+            {
+                $this->_quiet or $this->out('.. importing multiple stub files.');
+                $stubCode = '';
+                 // Process the items in the stubs section of the manifest.
+                foreach ($manifest->stubs[0]->children() as $item)
+                {
+                    $this->_quiet or $this->out(sprintf('.. importing %s.', (string) $item));
+                    // set the namespace
+                    $this->_packager->setNamespace((string) $item['namespace'] );
+                    $stubCode .= $this->_packager->getStubFileContents(realpath(dirname($manifestPath)) . '/' . (string) $item);
+                }
+
+                $this->_packager->setStubCode($stubCode);
+            }
 		}
 
 		$this->_quiet or $this->out('.. set the package stub file(s).');
@@ -213,7 +229,7 @@ class PackagerApplicationCli extends JApplicationCli
 	 * @since   1.0
 	 * @throws  InvalidArgumentException
 	 */
-	private function _fetchPackageManifest($manifestPath)
+    protected function _fetchPackageManifest($manifestPath)
 	{
 		// Set relative paths to be relative to the current working directory.
 		if (strpos($manifestPath, '/') !== 0)
