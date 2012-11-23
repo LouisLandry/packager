@@ -388,7 +388,7 @@ class PackagerPhar
         // convert the code string to an array
        $lines = explode("\n", $code);
 
-        if (count($lines < 3)) {
+        if (count($lines) < 3) {
             // there must be at least 3 lines termineate with CR
             // for there to be a header
             return $code;
@@ -415,7 +415,7 @@ class PackagerPhar
 
         // all conditions are set, strip the first 3 lines
         $lines = array_slice($lines, 3);
-        return implode('\n', $lines);
+        return implode("\n", $lines);
     }
 
 }

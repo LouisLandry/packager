@@ -42,6 +42,9 @@ class PackagerPharImporterJoomlaPlatform extends PackagerPharImporter
         // Check to see if external libraries should be imported.
         $hard = (((string) $el['hard'] == 'false') ? false : true);
 
+        // Check to see if compat libraries should be imported.
+        $compat = (((string) $el['compat'] == 'true') ? true : false);
+
 
         if ($hard) {
 		    // Validate that the platform import file exists.
@@ -61,12 +64,13 @@ class PackagerPharImporterJoomlaPlatform extends PackagerPharImporter
 		    $this->importFile($basePath . '/platform.php');
 		    $this->importFile($basePath . '/import.php');
 
-		    // If legacy is enabled import the legacy file.
-		    if ($legacy)
-		    {
-			    $this->importFile($basePath . '/import.legacy.php');
-		    }
         }
+        // If legacy is enabled import the legacy file.
+        if ($legacy)
+        {
+            $this->importFile($basePath . '/import.legacy.php');
+        }
+
 		// Get the appropriate Joomla Platform packages to import.
 		$packages = $this->_fetchPackagesToImport($el, $basePath);
 
@@ -100,13 +104,18 @@ class PackagerPharImporterJoomlaPlatform extends PackagerPharImporter
 			// Add just the files in the main package folder.
 			$this->importDirectoryFiles($basePath . '/joomla', '/joomla');
 
-			// Add just the files in the legacy package folder if enabled.
+			// Add the files in the legacy package folder if enabled.
 			if ($legacy)
 			{
 				$this->importDirectoryFiles($basePath . '/legacy', '/legacy');
 			}
 		}
 
+        // If compat libraries  enabled import the compat files.
+        if ($compat)
+        {
+            $this->importDirectoryRecursive($basePath . '/compat', '/compat');
+        }
         if ($external) {
 		// Add the external library dependencies.
 		$this->importDirectoryRecursive($basePath . '/phpmailer', '/phpmailer');
